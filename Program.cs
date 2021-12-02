@@ -28,6 +28,8 @@ namespace wallet_beautifier
 #if DEBUG
                 /// for test purposes only
 
+                Console.WriteLine("* * * for test purposes, command arguments are hard coded * * *");
+
                 args = new string[] {
                     "--terms=\"doge,dog\"",
                     "--tickers=\"doge\""
@@ -49,10 +51,10 @@ namespace wallet_beautifier
                 // Create a root command with some options
                 var rootCommand = new RootCommand
                 {
-                    new Option<string>(
+                    new Option<bool>(
                         "--exact",
-                        getDefaultValue: () => null,
-                        description: "True/false if the case is sensitive."),
+                        getDefaultValue: () => false,
+                        description: "True/false if the search for terms is case sensitive."),
                     new Option<string>(
                         "--terms",
                         getDefaultValue: () => null,
@@ -345,10 +347,10 @@ namespace wallet_beautifier
 
                 try
                 {
-                    UxCore.ShareMessage(MessageType.ResponseAsRequested,"Enter number of parallel threads to generate keys on:");
+                    UxCore.ShareMessage(MessageType.RequestingInput,"Enter number of parallel threads to generate keys on: ");
                     while (!int.TryParse(UxCore.ReadLine(), out output))
                     {
-                        UxCore.ShareMessage(MessageType.ResponseAsRequested, "Unable to parse entry, please try again; enter number of parallel threads to generate keys on:");
+                        UxCore.ShareMessage(MessageType.RequestingInput, "Unable to parse entry, please try again; enter number of parallel threads to generate keys on: ");
                     }
 
                     if(output < 1)
