@@ -1,0 +1,6 @@
+{
+    "__comment" : "this forces omnisharp to not look for Visual Studio MSBuild dlls - this is pure magic, do not remove! Details: Devs that have both VSCode and Visual Studio (any version(s)) installed will get errors without this magix.",
+    "msbuild": {
+        "useBundledOnly": true
+    }
+ }
