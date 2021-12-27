@@ -3,6 +3,7 @@ using wallet_beautifier.crypto.algorithms;
 using wallet_beautifier.crypto.algorithms.secp256k1;
 using wallet_beautifier.crypto.coin;
 using wallet_beautifier.crypto.coin.bitcoin;
+using wallet_beautifier.crypto.coin.cardano;
 using wallet_beautifier.crypto.coin.ethereum;
 using wallet_beautifier.crypto.coin.dogecoin;
 using wallet_beautifier.crypto.fortuna;
@@ -21,6 +22,7 @@ namespace wallet_beautifier
 {
     class Program
     {
+
         static async Task Main(string[] args)
         {
             try
@@ -113,7 +115,8 @@ namespace wallet_beautifier
                 List<ICoin> tickersAvailable = new List<ICoin> {
                     new Bitcoin(),
                     new EthereumCoin(),
-                    new Dogecoin()
+                    new Dogecoin(),
+                    new Cardano()
                 };
                 foreach(ICoin deltaCoin in tickersAvailable)
                 {
@@ -155,7 +158,7 @@ namespace wallet_beautifier
 
                 int parallelThreadsToRun = RequestNumberOfParallelThreadsToRun();
 
-                Task t = Task.Run(() => StartGenerationAsync(parallelThreadsToRun, selectedTermsToSearchFor , tickersToCheck, inputCaseSensitive));
+                Task t = Task.Run(() => CoinCore.StartGenerationAsync(parallelThreadsToRun, selectedTermsToSearchFor , tickersToCheck, inputCaseSensitive));
 
                 UxCore.ShareMessage(
                     MessageType.WishToShare,
@@ -169,7 +172,7 @@ namespace wallet_beautifier
 
                 UxCore.ShareMessage(MessageType.ResponseAsRequested, "Shutting down, please wait...");
 
-                StopGeneration();
+                CoinCore.StopGeneration();
 
                 await t;
 
@@ -185,154 +188,6 @@ namespace wallet_beautifier
                     )
                 );
             }
-        }
-
-        static CancellationTokenSource GenerationCts = new CancellationTokenSource();
-        static Dictionary<string, List<string>> SelectedTermsToSearchFor;
-        static List<ICoin> TickersToCheck;
-        static bool TermsCaseSensitive;
-
-        static async Task StartGenerationAsync(int maxNumberOfThreads, List<string> selectedTermsToSearchFor, List<ICoin> tickersToCheck, bool termsCaseSensitive)
-        {
-            try
-            {
-
-                List<Task> parallelTasks = new List<Task>();
-                SelectedTermsToSearchFor = new Dictionary<string, List<string>>();
-                TickersToCheck = tickersToCheck;
-                foreach(ICoin deltaCoin in TickersToCheck)
-                {
-                    SelectedTermsToSearchFor.Add(deltaCoin.GetTicker, new List<string>());
-
-                    foreach(string deltaTerm in selectedTermsToSearchFor)
-                    {
-                        if(deltaCoin.CharactersAreAllowedInPublicAddress(deltaTerm))
-                        {
-                            SelectedTermsToSearchFor[deltaCoin.GetTicker].Add(deltaTerm);
-                        }
-                        else
-                        {
-                            UxCore.ShareMessage(
-                                MessageType.WantToShare,
-                                string.Format(
-                                    "Coin {0} does not allow for one or more characters in the term, '{1}', so this term will be skipped.",
-                                    deltaCoin.GetTicker,
-                                    deltaTerm
-                                )
-                            );
-                        }
-                    }
-                }
-                TermsCaseSensitive = termsCaseSensitive;
-
-                while(!GenerationCts.IsCancellationRequested)
-                {
-                    parallelTasks.Add(Task.Run(GenerateKeysAsync));
-
-                    if(parallelTasks.Count > maxNumberOfThreads - 1)
-                    {
-                        foreach(Task deltaTask in parallelTasks)
-                        {
-                            await deltaTask;
-                        }
-
-                        parallelTasks.Clear();
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                UxCore.ShareMessage(
-                    MessageType.NeedToShare,
-                    string.Format(
-                        "Exception caught in the primary thread handling the key generation, message = '{0}'",
-                        e.Message
-                    )
-                );
-            }
-
-            UxCore.ShareMessage(MessageType.ResponseAsRequested, "Parallel threads are shut down.");
-        }
-
-        public static async Task GenerateKeysAsync()
-        {
-            byte[] privateKeyBytes = await CryptoCore.RetrieveRandomBytesAsync(32);
-            byte[] publicKeyBytes = GetPublicKey(privateKeyBytes);
-
-            //
-            foreach(ICoin deltaCoin in TickersToCheck)
-            {
-                string address;
-
-                // this is a hack needs to be expanded when more coins are added
-                if(deltaCoin.GetTicker != "ETH")
-                {
-                    address = deltaCoin.GenerateAddressFromHashedPublicKey(CryptoCore.ComputeRipeMd160Hash(CryptoCore.ComputeSha256Hash(publicKeyBytes)));
-                }
-                else
-                {
-                    address = deltaCoin.GenerateAddressFromHashedPublicKey(publicKeyBytes);
-                }
-
-                string addressLower = address.ToLower();
-
-                if(SelectedTermsToSearchFor[deltaCoin.GetTicker].Count > 0)
-                {
-                    foreach(string deltaTermToSearchFor in SelectedTermsToSearchFor[deltaCoin.GetTicker])
-                    {
-                        string deltaTermToSearchForLower = deltaTermToSearchFor.ToLower();
-
-                        if(address.Contains(deltaTermToSearchFor))
-                        {
-                            UxCore.ShareMessage(
-                                MessageType.ResponseAsRequested,
-                                string.Format(
-                                    "EXACT '{0}' coin {1} (native public key)/private (Base58): {2}/{3}",
-                                    deltaTermToSearchFor,
-                                    deltaCoin.GetTicker,
-                                    address,
-                                    Base58.Encode(privateKeyBytes)
-                                )
-                            );
-                        }
-                        else if(TermsCaseSensitive && addressLower.Contains(deltaTermToSearchForLower))
-                        {
-                            UxCore.ShareMessage(
-                                MessageType.ResponseAsRequested,
-                                string.Format(
-                                    "SIMILAR '{0}' coin {1} (native public key)/private (Base58): {2}/{3}",
-                                    deltaTermToSearchFor,
-                                    deltaCoin.GetTicker,
-                                    address,
-                                    Base58.Encode(privateKeyBytes)
-                                )
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        ///<summary>
-        ///</summary>
-        private static byte[] GetPublicKey(byte[] privateKey)
-        {
-            using(Secp256k1 s = new Secp256k1())
-            {
-                Span<byte> publicKeyCreated = new Span<byte>(new byte[64]);
-                s.PublicKeyCreate(publicKeyCreated, privateKey);
-
-                Span<byte> publicKeySerialized = new Span<byte>(new byte[65]);
-                s.PublicKeySerialize(publicKeySerialized, publicKeyCreated);
-
-                return publicKeySerialized.ToArray();
-            }
-        }
-
-        static void StopGeneration()
-        {
-            UxCore.ShareMessage(MessageType.ResponseAsRequested, "Signalling parallel threads to cancel...");
-            GenerationCts.Cancel();
         }
 
         static int RequestNumberOfParallelThreadsToRun()

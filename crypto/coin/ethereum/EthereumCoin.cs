@@ -15,28 +15,37 @@ namespace wallet_beautifier.crypto.coin.ethereum
 
         public string GetAttemptPath => SUBFOLDER;
 
-        public ByteStage GetByteStage => ByteStage.RawBytes;
+        public CurveType GetCurveType => CurveType.Secp256k1;
+
+        public PostCalculationType GetPostCalculationType => PostCalculationType.Keccak256;
 
         public EthereumCoin() : base(() => IoCore.GetAttemptPath(SUBFOLDER))
         { }
         
-        public string GenerateAddressFromHashedPublicKey(byte[] publicKeyBytes)
+        public string GenerateAddressFromCalculatedPublicKey(string keccakString)
         {
-            if(publicKeyBytes.Length != 65) throw new ArgumentException("publicKey size incorrect, must be exactly 65 bytes as it should be serialized from a secp256k1 eliptical curve public key.");
-
-            byte[] ethereumRelevantBytes = new byte[publicKeyBytes.Length - 1];
-            Buffer.BlockCopy(publicKeyBytes, 1, ethereumRelevantBytes, 0 , ethereumRelevantBytes.Length);
-            
-            string keccakString = CryptoCore.ComputeKeccak256Hash(ethereumRelevantBytes);
-
             return "0x" + keccakString.Substring(keccakString.Length - 40);
         }
 
-        public bool CharactersAreAllowedInPublicAddress(string address)
+        public bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive)
         {
-            foreach(char deltaChar in address)
+            string digitsToCheck;
+            string addressToCheck;
+
+            if(termsCaseSensitive)
             {
-                if(!Base58.Hexdigits.Contains(deltaChar))
+                digitsToCheck = Base58.Hexdigits;
+                addressToCheck = address;
+            }
+            else
+            {
+                digitsToCheck = Base58.Hexdigits.ToUpper();
+                addressToCheck = address.ToUpper();
+            }
+
+            foreach(char deltaChar in addressToCheck)
+            {
+                if(!digitsToCheck.Contains(deltaChar))
                 {
                     return false;
                 }

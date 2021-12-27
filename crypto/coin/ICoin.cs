@@ -20,18 +20,23 @@ namespace wallet_beautifier.crypto.coin
         string GetAttemptPath { get; } 
 
         ///<summary>
-        /// Returns the stage at which GenerateAddressFromPublicKey wants to grab it's bytes at.
+        /// Returns the curve used to generate a public key (from the random bytes of private key).
         ///</summary>
-        ByteStage GetByteStage { get; } 
+        CurveType GetCurveType { get; }
 
         ///<summary>
-        /// Generate a wallet address form public key bytes.
+        /// Returns the post calculation used to calculate a string from a public key byte array (may not be final for for a crypto).
         ///</summary>
-        string GenerateAddressFromHashedPublicKey(byte[] publicKey);
+        PostCalculationType GetPostCalculationType { get; }
+
+        ///<summary>
+        /// Generate a wallet address from public key string, could have some calculation, depending on implementation (e.g: hash).
+        ///</summary>
+        string GenerateAddressFromCalculatedPublicKey(string calculatedPublicKey);
 
         Task BufferKeyPairAsync(string address, byte[] privateKey);
 
-        bool CharactersAreAllowedInPublicAddress(string address);
+        bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive);
 
         void Open();
 

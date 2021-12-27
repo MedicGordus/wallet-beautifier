@@ -1,25 +1,31 @@
+
+
 using wallet_beautifier.crypto.algorithms;
 using wallet_beautifier.io;
 
 using System;
 
-namespace wallet_beautifier.crypto.coin.dogecoin
+namespace wallet_beautifier.crypto.coin.cardano
 {
-    public class Dogecoin : ACoin<Dogecoin>, ICoin
+    ///<remarks>
+    /// explanation for how addresses work:
+    ///     https://cips.cardano.org/cips/cip19/
+    ///</remarks>
+    public class Cardano : ACoin<Cardano>, ICoin
     {
-        public string GetCommonName => "Dogecoin";
+        public string GetCommonName => "Cardano";
 
-        public string GetTicker => "DOGE";
-        
-        private readonly static string SUBFOLDER = IoCore.AppendOnRootPath("attempts-dogecoin");
+        public string GetTicker => "ADA";
+
+        private readonly static string SUBFOLDER = IoCore.AppendOnRootPath("attempts-cardano");
 
         public string GetAttemptPath => SUBFOLDER;
 
-        public CurveType GetCurveType => CurveType.Secp256k1;
+        public CurveType GetCurveType => CurveType.Curve25519;
 
-        public PostCalculationType GetPostCalculationType => PostCalculationType.Sha256RipeMd160AndChecksumVersion30;
+        public PostCalculationType GetPostCalculationType => PostCalculationType.Black2b224;
 
-        public Dogecoin() : base(() => IoCore.GetAttemptPath(SUBFOLDER))
+        public Cardano() : base(() => IoCore.GetAttemptPath(SUBFOLDER))
         { }
 
         public string GenerateAddressFromCalculatedPublicKey(string publicKeyCalculated)
@@ -34,12 +40,12 @@ namespace wallet_beautifier.crypto.coin.dogecoin
 
             if(termsCaseSensitive)
             {
-                digitsToCheck = Base58.Digits;
+                digitsToCheck = Bech32.Digits;
                 addressToCheck = address;
             }
             else
             {
-                digitsToCheck = Base58.Digits.ToUpper();
+                digitsToCheck = Bech32.Digits.ToUpper();
                 addressToCheck = address.ToUpper();
             }
 

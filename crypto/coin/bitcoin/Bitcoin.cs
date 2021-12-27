@@ -15,36 +15,37 @@ namespace wallet_beautifier.crypto.coin.bitcoin
 
         public string GetAttemptPath => SUBFOLDER;
 
-        public ByteStage GetByteStage => ByteStage.Sha256RipeMd160;
+        public CurveType GetCurveType => CurveType.Secp256k1;
+
+        public PostCalculationType GetPostCalculationType => PostCalculationType.Sha256RipeMd160AndChecksumVersion0;
 
         public Bitcoin() : base(() => IoCore.GetAttemptPath(SUBFOLDER))
         { }
 
-        public string GenerateAddressFromHashedPublicKey(byte[] publicKeyHashed)
+        public string GenerateAddressFromCalculatedPublicKey(string publicKeyCalculated)
         {
-            if(publicKeyHashed.Length != 20) throw new ArgumentException("publicKey size incorrect, must be exactly 20 bytes as it should have been hashed like so: RipeMd160(Sha256(input)).");
-
-            // this appends the 0 byte we need for versioning mainnet
-            byte[] bitcoinBytes = new byte[publicKeyHashed.Length + 1];
-            Buffer.BlockCopy(publicKeyHashed, 0, bitcoinBytes, 1, publicKeyHashed.Length);
-            
-            // create checksum
-            byte[] checkSumBytes = CryptoCore.ComputeDoubleSha256Hash(bitcoinBytes);
-            
-            // concatenate on the end of the ripemd160
-            byte[] addressBytes = new byte[bitcoinBytes.Length + 4];
-            Buffer.BlockCopy(bitcoinBytes, 0, addressBytes, 0, bitcoinBytes.Length);
-            Buffer.BlockCopy(checkSumBytes, 0, addressBytes, bitcoinBytes.Length, 4);
-            
-            // Base58 encode
-            return Base58.Encode(addressBytes);
+            return publicKeyCalculated;
         }
 
-        public bool CharactersAreAllowedInPublicAddress(string address)
+        public bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive)
         {
-            foreach(char deltaChar in address)
+            string digitsToCheck;
+            string addressToCheck;
+
+            if(termsCaseSensitive)
             {
-                if(!Base58.Digits.Contains(deltaChar))
+                digitsToCheck = Base58.Digits;
+                addressToCheck = address;
+            }
+            else
+            {
+                digitsToCheck = Base58.Digits.ToUpper();
+                addressToCheck = address.ToUpper();
+            }
+
+            foreach(char deltaChar in addressToCheck)
+            {
+                if(!digitsToCheck.Contains(deltaChar))
                 {
                     return false;
                 }

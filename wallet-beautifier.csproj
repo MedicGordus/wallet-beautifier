@@ -17,7 +17,13 @@
     <!-- ec native curve library -->
     <PackageReference Include="Secp256k1.Native" Version="0.1.20" />
 
-    <!-- sha3 -->
+    <!-- sha3, used for Ethereum (uses non government version of sha3, Keccak) -->
     <PackageReference Include="SHA3Core" Version="1.0.0" />
+
+    <!-- eliptical curve for Cardano -->
+    <PackageReference Include="curve25519-dotnet" Version="0.5.0" />
+
+    <!-- Blake2b hash for Cardano -->
+    <PackageReference Include="Blake2b.NetCore" Version="1.0.1" />
   </ItemGroup>
 </Project>
