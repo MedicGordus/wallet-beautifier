@@ -23,7 +23,8 @@
     <!-- eliptical curve for Cardano -->
     <PackageReference Include="curve25519-dotnet" Version="0.5.0" />
 
-    <!-- Blake2b hash for Cardano -->
+    <!-- Blake2b hash for Cardano DOES NOT SUPPORT 224 digest !
     <PackageReference Include="Blake2b.NetCore" Version="1.0.1" />
+     -->
   </ItemGroup>
 </Project>

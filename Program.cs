@@ -33,9 +33,31 @@ namespace wallet_beautifier
                 Console.WriteLine("* * * for test purposes, command arguments are hard coded * * *");
 
                 args = new string[] {
-                    "--terms=\"doge,dog\"",
-                    "--tickers=\"doge\""
+                    "--terms=\"n54n\"",
+                    "--tickers=\"ada\""
                 };
+
+/* trying to use test vectors:
+                // https://medium.com/mycrypto/the-journey-from-mnemonic-phrase-to-address-6c5e86e11e14
+                // https://gist.github.com/KtorZ/b2e4e1459425a46df51c023fda9609c8
+                //
+                string hrp = "";
+                byte[] privateKey = null;
+                //wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("root_xprv1vzrzr76vqyqlavclduhawqvtae2pq8lk0424q7t8rzfjyhhp530zxv2fwq5a3pd4vdzqtu6s2zxdjhww8xg4qwcs7y5dqne5k7mz27p6rcaath83rl20nz0v9nwdaga9fkufjuucza8vmny8qpkzwstk5qwutx5p", out hrp, out privateKey);
+                privateKey = Convert.FromHexString("00300b155f751964276c0536230bd9b16fe7a86533c3cbaa7575e8d0431dbedf23");
+                byte[] rawPublicKeyBytes = wallet_beautifier.crypto.algorithms.curve25519.Curve25519Core.CalculatePublicKey(privateKey);
+                byte[] blakeHashedBytes = CryptoCore.ComputeBlake2b224Hash(rawPublicKeyBytes);
+                string address = Bech32.EncodeAddress(blakeHashedBytes);
+*/
+
+/* https://cardano.stackexchange.com/questions/4008/how-can-i-derive-an-address-from-a-private-key
+                string hrp = "";
+                byte[] privateKey = null;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("acct_xsk10ra048lvz7le0y5pkmqmceuf492u64nv8edk9qsh3036jtz84dp3xqns35edmhag0nke3xmhm87368v8mtr5d2ryd3ucjgg6e5vjf7r8eu4ejhpyax2us59c73pt7sduvddy934k8p925xxsqvc2hh8nnug24fq6", out hrp, out privateKey);
+                byte[] rawPublicKeyBytes = wallet_beautifier.crypto.algorithms.curve25519.Curve25519Core.CalculatePublicKey(privateKey);
+                byte[] blakeHashedBytes = CryptoCore.ComputeBlake2b224Hash(rawPublicKeyBytes);
+                string address = Bech32.EncodeAddress(blakeHashedBytes);
+*/
 #endif
 
                 UxCore.ShareMessage(MessageType.WishToShare, "Hello, wallet-beautifier starting up...");
@@ -158,7 +180,7 @@ namespace wallet_beautifier
 
                 int parallelThreadsToRun = RequestNumberOfParallelThreadsToRun();
 
-                Task t = Task.Run(() => CoinCore.StartGenerationAsync(parallelThreadsToRun, selectedTermsToSearchFor , tickersToCheck, inputCaseSensitive));
+                Task t = Task.Run(() => CoinCore.StartKeyMatchingAsync(parallelThreadsToRun, selectedTermsToSearchFor , tickersToCheck, inputCaseSensitive));
 
                 UxCore.ShareMessage(
                     MessageType.WishToShare,

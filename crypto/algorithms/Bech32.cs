@@ -10,7 +10,7 @@ namespace wallet_beautifier.crypto.algorithms
     ///</summary>
     public class Bech32
     {
-        public static string Digits = Bech32Engine.charset;
+        public const string Digits = Bech32Engine.charset;
         private static CardanoBech32Wrapper C32W = new CardanoBech32Wrapper();
 
         public static string EncodeAddress(byte[] hashedPublicKey)

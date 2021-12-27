@@ -385,7 +385,7 @@ namespace wallet_beautifier.crypto.coin
                     break;
                 
                 case PostCalculationType.Black2b224:
-                    byte[] blakeHashedBytes = CryptoCore.ComputeBlake2b244Hash(rawPublicKeyBytes);
+                    byte[] blakeHashedBytes = CryptoCore.ComputeBlake2b224Hash(rawPublicKeyBytes);
                     
                     output = Bech32.EncodeAddress(blakeHashedBytes);
                     break;

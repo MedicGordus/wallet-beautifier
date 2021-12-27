@@ -2,11 +2,10 @@ using wallet_beautifier.crypto.fortuna;
 
 using SHA3Core.Keccak;
 
-using Blake2b.NetCore;
-using PinnedMemory;
+using Blake2Sharp;
 
+using System;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,36 +56,16 @@ namespace wallet_beautifier.crypto
             }
         }
 
-        ///<summary>
-        /// Blake2b-244.
-        ///</summary>
-        internal static byte[] ComputeBlake2b244Hash(byte[] input)
-        {
-            return ComputeBlake2bHash(input, 244);
-        }
+        private static readonly Blake2BConfig BLAKE2B_224_CONFIG = new Blake2BConfig {
+            OutputSizeInBits = 224
+        };
 
         ///<summary>
-        /// Blake2b-256.
+        /// Blake2b-224.
         ///</summary>
-        internal static byte[] ComputeBlake2b256Hash(byte[] input)
+        internal static byte[] ComputeBlake2b224Hash(byte[] input)
         {
-            return ComputeBlake2bHash(input, 256);
-        }
-
-        ///<summary>
-        /// Blake2b-244.
-        ///</summary>
-        private static byte[] ComputeBlake2bHash(byte[] input, int digestSize)
-        {
-            using (Blake2b.NetCore.Blake2b digest = new Blake2b.NetCore.Blake2b(digestSize))
-            using (var hash = new PinnedMemory<byte>(new byte[digest.GetLength()]))
-            using (var pinnedInput = new PinnedMemory<byte>(input, false)) // input is STILL exposed and could be leaked until garbage collect.
-            {
-                digest.UpdateBlock(pinnedInput, 0, pinnedInput.Length);
-                digest.DoFinal(hash, 0);
-
-                return hash.ToArray();
-            }
+            return Blake2B.ComputeHash(input, BLAKE2B_224_CONFIG);
         }
 
         
