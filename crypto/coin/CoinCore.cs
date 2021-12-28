@@ -181,6 +181,24 @@ namespace wallet_beautifier.crypto.coin
                 }
             }
 
+            // verify we have at least one search term
+            int totalTerms = (
+                from
+                    _item in selectedTermsToSearchForByToken
+                select
+                    _item.Value.Count
+            ).Sum();
+            if(totalTerms == 0)
+            {
+                UxCore.ShareMessage(
+                    MessageType.ResponseAsRequested,
+                    "No allowed terms found, exiting search..."
+                );
+
+                return;
+            }
+
+            // start key matching
             while(!cts.Token.IsCancellationRequested)
             {
                 parallelTasks.Add(
@@ -299,7 +317,12 @@ namespace wallet_beautifier.crypto.coin
                 {
                     string address = deltaCoin.GenerateAddressFromCalculatedPublicKey(publicKeyBytesByCurveAndPostCalculationType[deltaCoinEntry.Key][deltaCoin.GetPostCalculationType]);
 
-                    string addressLower = address.ToLower();
+                    string addressLower = null;
+                    
+                    if(termsCaseSensitive)
+                    {
+                        addressLower = address.ToLower();
+                    }
 
                     if(selectedTermsToSearchForByToken[deltaCoin.GetTicker].Count > 0)
                     {

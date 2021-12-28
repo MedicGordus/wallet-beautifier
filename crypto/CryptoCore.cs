@@ -57,17 +57,76 @@ namespace wallet_beautifier.crypto
         }
 
         private static readonly Blake2BConfig BLAKE2B_224_CONFIG = new Blake2BConfig {
-            OutputSizeInBits = 224
+            OutputSizeInBits = 224,
+            OutputSizeInBytes = 28
         };
+
+        private static readonly Blake2BConfig BLAKE2B_256_CONFIG = new Blake2BConfig {
+            OutputSizeInBits = 256,
+            OutputSizeInBytes = 32
+        };
+
+
+/*
+        ///<summary>
+        /// unused.
+        ///</summary>
+        internal static byte[] ComputeBlake2b224Sha3256Hash(byte[] input)
+        {
+
+            return Blake2B.ComputeHash(
+                Convert.FromHexString(
+                    new Keccak(SHA3Core.Enums.KeccakBitType.K256).Hash(
+                        input
+                    )
+                ),
+                BLAKE2B_224_CONFIG
+            );
+        }
+*/
 
         ///<summary>
         /// Blake2b-224.
+        ///
+        /// Used by cardano as per
+        ///     https://hydra.iohk.io/build/8201171/download/1/ledger-spec.pdf
         ///</summary>
+        ///<remarks>
+        /// Cannot find vectors for 224, so we tested 512 and pass
+        ///</remarks>
         internal static byte[] ComputeBlake2b224Hash(byte[] input)
         {
             return Blake2B.ComputeHash(input, BLAKE2B_224_CONFIG);
         }
 
+        ///<summary>
+        /// Blake2b-256.
+        ///
+        /// Used by cardano as per
+        ///     https://hydra.iohk.io/build/8201171/download/1/ledger-spec.pdf
+        ///</summary>
+        ///<remarks>
+        /// Cannot find vectors for 256, so we tested 512 and pass
+        ///</remarks>
+        internal static byte[] ComputeBlake2b256Hash(byte[] input)
+        {
+            return Blake2B.ComputeHash(input, BLAKE2B_256_CONFIG);
+        }
+
+        ///<remarks>
+        /// Used to test BLACK2B library against vectors:
+        ///     https://github.com/emilbayes/blake2b/blob/master/test-vectors.json
+        ///</remarks>
+        internal static byte[] ComputeBlake2b512Hash(byte[] input)
+        {
+            return Blake2B.ComputeHash(
+                input,
+                new Blake2BConfig {
+                    OutputSizeInBits = 512,
+                    OutputSizeInBytes = 64
+                }
+            );
+        }
         
         ///<summary>
         /// SHA2-256, 2x.

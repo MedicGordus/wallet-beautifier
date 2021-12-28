@@ -1,0 +1,89 @@
+The following blocks of commented code verify that this code works.
+
+* * * WARNING * * *
+There is one untested portion in sc_clamp.cs which has been modified to align with several Cardano docs
+    search for "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0003/Icarus.md"
+
+/* trying to use test vectors:
+                // https://gist.github.com/KtorZ/b2e4e1459425a46df51c023fda9609c8
+                //
+
+
+                // CONFIRMS THAT THE -entire stack- WORKS! (note test vector uses testnet)
+
+
+                
+                string hrp = "";
+                byte[] privateKey = null;
+
+                //    m/1852'/1815'/0'/0/1442:
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("addr_xprv14qtc6t6wfzk4jvdp0k8d9jp0xtlmhkh8el98nfnqwr5kqulp530vmhqefsml4rsntysxu057jecdq0l3gmzs6c8nv5mvjn5aesmklzqepr3e4n4ca0p23tm57dwkw4ws46cz2mmdx3jnxtxy8zqyfekftvu7wdvm", out hrp, out privateKey);
+
+                //    m/1852'/1815'/0'/0/0:
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("addr_xprv1hqf6v2lvhfn5mr3fe6g8ac6n8a3z6s0p24mg6kre8jadxulp530y07wjp2ml0zcz8gk0xc7zy96qp2xxtr0arjq9038k9dhkw3k3cswawhs4fkjp00kwc4wd6fynyaz5zw8ssggs9974apatyhs4ltg4puskm3kd", out hrp, out privateKey);
+
+
+                byte[] rawPublicKeyBytes = wallet_beautifier.crypto.algorithms.curve25519.Curve25519Core.CalculatePublicKey(privateKey);
+                byte[] blakeHashedBytes = CryptoCore.ComputeBlake2b224Hash(rawPublicKeyBytes);
+
+                byte[] expectedHashedPublicKeyBytes;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("addr1vz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzers6g8jlq", out hrp, out expectedHashedPublicKeyBytes);
+
+                string address = Bech32.EncodeAddress(blakeHashedBytes);
+ */
+
+/* https://cardano.stackexchange.com/questions/4008/how-can-i-derive-an-address-from-a-private-key
+
+
+                // CONFIRMS THAT THE -highly modified EC library- WORKS!
+
+
+                string hrp = "";
+                byte[] extendedPrivateKey = null;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("acct_xsk10ra048lvz7le0y5pkmqmceuf492u64nv8edk9qsh3036jtz84dp3xqns35edmhag0nke3xmhm87368v8mtr5d2ryd3ucjgg6e5vjf7r8eu4ejhpyax2us59c73pt7sduvddy934k8p925xxsqvc2hh8nnug24fq6", out hrp, out extendedPrivateKey);
+                byte[] rawPublicKeyBytes = wallet_beautifier.crypto.algorithms.curve25519.Curve25519Core.CalculatePublicKey(extendedPrivateKey);
+
+                byte[] publicKeyWithChainCodeBytes = new byte[32 + 32];
+                Buffer.BlockCopy(rawPublicKeyBytes, 0, publicKeyWithChainCodeBytes, 0, rawPublicKeyBytes.Length);
+                Buffer.BlockCopy(extendedPrivateKey, 32 + 32, publicKeyWithChainCodeBytes, 32, 32);
+
+                string acct_xvk = Bech32.EncodeCustom(publicKeyWithChainCodeBytes, wallet_beautifier.crypto.algorithms.bech32.AddressType.addr);
+
+                byte[] expectedPublicKeyWithChainCodeBytes;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("acct_xvk1fpqtkwf8yy5rn3f79a4vr4fpd9rxxfheursjzqw8kgj0qf3q98ux0netn9wzf6v4epgt3azzhaqmcc66gtrtvwz24gvdqqes40w088c36lqsu", out hrp, out expectedPublicKeyWithChainCodeBytes);
+ */
+
+/* test vectors prove our algorithms are valid:
+                // https://cips.cardano.org/cips/cip19/
+                //
+                //
+                //  * * * WARNING according to:
+                //      https://cips.cardano.org/cips/cip5/#aboutskvk
+                ///
+                //      addr_vk prefix = unhashed public key * * *
+                //
+
+
+
+
+                // CONFIRMS THAT THE BECH encoding/decoding WORKS!
+
+
+                
+                string hrp = "";
+                byte[] expectedHashedPublicKeyBytes;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("addr1vx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzers66hrl8", out hrp, out expectedHashedPublicKeyBytes);
+
+                byte[] matchOutputBytes;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode("addr_vk1w0l2sr2zgfm26ztc6nl9xy8ghsk5sh6ldwemlpmp9xylzy4dtf7st80zhd", out hrp, out matchOutputBytes);
+
+                byte[] hashedOutputBytes = CryptoCore.ComputeBlake2b224Hash(matchOutputBytes);
+
+                byte[] blakeHashedBytes = new byte[hashedOutputBytes.Length + 1];
+                blakeHashedBytes[0] = 97;
+                Buffer.BlockCopy(hashedOutputBytes, 0, blakeHashedBytes, 1, hashedOutputBytes.Length);
+                string newAddress = wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Encode("addr", blakeHashedBytes);
+
+                byte[] secondCheckDecode;
+                wallet_beautifier.crypto.algorithms.bech32.Bech32Engine.Decode(newAddress, out hrp, out secondCheckDecode);
+*/

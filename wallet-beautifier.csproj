@@ -20,14 +20,8 @@
     <!-- sha3, used for Ethereum (uses non government version of sha3, Keccak) -->
     <PackageReference Include="SHA3Core" Version="1.0.0" />
 
-    <!-- eliptical curve for Cardano COMPLETE CRAP!
-    <PackageReference Include="curve25519-dotnet" Version="0.5.0" />
-     -->
-    <!-- eliptical curve for Cardano -->
+    <!-- eliptical curve for Cardano (functional but is not optimized, we switched to Chaos.NaCl(https://github.com/CodesInChaos/Chaos.NaCl))
     <PackageReference Include="Ed25519" Version="1.0.0" />
-
-    <!-- Blake2b hash for Cardano DOES NOT SUPPORT 224 digest !
-    <PackageReference Include="Blake2b.NetCore" Version="1.0.1" />
      -->
   </ItemGroup>
 </Project>

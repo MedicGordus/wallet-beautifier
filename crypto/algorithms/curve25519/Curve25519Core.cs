@@ -1,6 +1,3 @@
-using curve25519;
-using org.whispersystems.curve25519;
-
 using System;
 
 namespace wallet_beautifier.crypto.algorithms.curve25519
@@ -8,36 +5,50 @@ namespace wallet_beautifier.crypto.algorithms.curve25519
 
     public static class Curve25519Core
     {
-        ///<remarks>
-        /// We tested a custom ISha512 which returned input as output and it made no difference to pubkey generation from a private key
-        ///</remarks>
-        private static CSharpCurve25519Provider Provider = new CSharpCurve25519Provider();
-
-        private static Curve25519 curve25519 = Curve25519.getInstance(Curve25519.CSHARP);
-
         ///<summary>
         ///</summary>
         ///<remarks>
-        /// fails vectors listed here 
-        ///     https://datatracker.ietf.org/doc/html/draft-ietf-tls-curve25519-01
+        /// [INVALD NOW because of modifications] succeeded on test vectors listed here
         ///
-        ///     and
+        ///     * * * WARNING: sc_clamp.cs has been modified, search for "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0003/Icarus.md" * * *
+        ///
+        ///     * * * WARNING: Also removed SHA512 from algorithm in keypair.cs, search for "oi448fgu" * * *
         ///
         ///     https://datatracker.ietf.org/doc/html/rfc8032#section-7.1
         ///
-        /// although it passes it's own test:
-        ///
-        ///     https://github.com/signal-csharp/curve25519-dotnet/blob/master/curve25519-dotnet-tests/BasicTests.cs
-        ///
-        ///     as well as an external test:
-        ///
-        ///     https://github.com/signalapp/curve25519-java/blob/master/tests/src/main/java/org/whispersystems/curve25519/Curve25519Test.java
+        /// however, unable to recreate vectors for Cardano listed here:
+        ///     https://gist.github.com/KtorZ/b2e4e1459425a46df51c023fda9609c8
+        ///     https://github.com/satoshilabs/slips/blob/master/slip-0023.md
         ///</remarks>
         public static byte[] CalculatePublicKey(byte[] privateKey)
         {
-            return Provider.generatePublicKey(TweakPrivateKey(privateKey));
+            // because the array is modified, we need to use a copy so caller doesn't lose the original
+            byte[] deepCopyPrivateKey = new byte[32];
+            Buffer.BlockCopy(privateKey, 0, deepCopyPrivateKey, 0, 32);
+
+            return Chaos.NaCl.Ed25519.PublicKeyFromSeed(deepCopyPrivateKey);
         }
 
+/* this is built into the implementation we are using so we don't need it anymore
+        ///<summary>
+        ///</summary>
+        public static byte[] CalculatePublicKey(byte[] privateKey)
+        {
+            if(privateKey.Length > 32)
+            {
+                Array.Resize(ref privateKey, 32);
+            }
+            
+            return Chaos.NaCl.Ed25519.PublicKeyFromSeed(TweakPrivateKey(privateKey));
+        }
+*/
+        ///<summary>
+        /// Used to return the actual private key used to generate the public key.
+        ///</summary>
+        ///<remarks>
+        /// sc_clamp.cs has been modified inside the EC-curve25519 library to match this (and ADA spec)
+        //      search for "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0003/Icarus.md"
+        ///</remarks>
         public static byte[] TweakPrivateKey(byte[] privateKey)
         {            
             // tweaking as per https://github.com/cardano-foundation/CIPs/blob/master/CIP-0003/Icarus.md
