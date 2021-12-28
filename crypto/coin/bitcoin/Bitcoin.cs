@@ -27,6 +27,8 @@ namespace wallet_beautifier.crypto.coin.bitcoin
             return publicKeyCalculated;
         }
 
+        public byte[] TweakPrivateKey(byte[] privateKey) => privateKey;
+
         public bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive)
         {
             string digitsToCheck;

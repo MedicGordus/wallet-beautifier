@@ -27,6 +27,8 @@ namespace wallet_beautifier.crypto.coin.ethereum
             return "0x" + keccakString.Substring(keccakString.Length - 40);
         }
 
+        public byte[] TweakPrivateKey(byte[] privateKey) => privateKey;
+
         public bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive)
         {
             string digitsToCheck;

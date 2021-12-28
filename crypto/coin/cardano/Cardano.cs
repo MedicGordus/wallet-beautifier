@@ -1,6 +1,7 @@
 
 
 using wallet_beautifier.crypto.algorithms;
+using wallet_beautifier.crypto.algorithms.curve25519;
 using wallet_beautifier.io;
 
 using System;
@@ -31,6 +32,11 @@ namespace wallet_beautifier.crypto.coin.cardano
         public string GenerateAddressFromCalculatedPublicKey(string publicKeyCalculated)
         {
             return publicKeyCalculated;
+        }
+
+        public byte[] TweakPrivateKey(byte[] privateKey)
+        {
+            return Curve25519Core.TweakPrivateKey(privateKey);
         }
 
         public bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive)

@@ -278,7 +278,7 @@ namespace wallet_beautifier.crypto.coin
             {
                 foreach(ICoin deltaCoin in deltaCoinEntry.Value)
                 {
-                    await deltaCoin.BufferKeyPairAsync(deltaCoin.GenerateAddressFromCalculatedPublicKey(publicKeyBytesByCurveAndPostCalculationType[deltaCoinEntry.Key][deltaCoin.GetPostCalculationType]), privateKeyBytes);
+                    await deltaCoin.BufferKeyPairAsync(deltaCoin.GenerateAddressFromCalculatedPublicKey(publicKeyBytesByCurveAndPostCalculationType[deltaCoinEntry.Key][deltaCoin.GetPostCalculationType]), deltaCoin.TweakPrivateKey(privateKeyBytes));
                 }
             }
         }
@@ -316,7 +316,7 @@ namespace wallet_beautifier.crypto.coin
                                         deltaTermToSearchFor,
                                         deltaCoin.GetTicker,
                                         address,
-                                        Base58.Encode(privateKeyBytes)
+                                        Base58.Encode(deltaCoin.TweakPrivateKey(privateKeyBytes))
                                     )
                                 );
                             }
@@ -329,7 +329,7 @@ namespace wallet_beautifier.crypto.coin
                                         deltaTermToSearchFor,
                                         deltaCoin.GetTicker,
                                         address,
-                                        Base58.Encode(privateKeyBytes)
+                                        Base58.Encode(deltaCoin.TweakPrivateKey(privateKeyBytes))
                                     )
                                 );
                             }

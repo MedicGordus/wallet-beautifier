@@ -34,6 +34,12 @@ namespace wallet_beautifier.crypto.coin
         ///</summary>
         string GenerateAddressFromCalculatedPublicKey(string calculatedPublicKey);
 
+
+        ///<summary>
+        /// Tweaks private key as needed.
+        ///</summary>
+        byte[] TweakPrivateKey(byte[] privateKey);
+
         Task BufferKeyPairAsync(string address, byte[] privateKey);
 
         bool CharactersAreAllowedInPublicAddress(string address, bool termsCaseSensitive);
