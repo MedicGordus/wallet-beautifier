@@ -401,7 +401,7 @@ namespace wallet_beautifier.crypto.coin
                     if(rawPublicKeyBytes.Length != 65) throw new ArgumentException("publicKey size incorrect, must be exactly 65 bytes as it should be serialized from a secp256k1 eliptical curve public key.");
 
                     byte[] relevantKeccakBytes = new byte[rawPublicKeyBytes.Length - 1];
-                    Buffer.BlockCopy(rawPublicKeyBytes, 1, relevantKeccakBytes, 0 , output.Length);
+                    Buffer.BlockCopy(rawPublicKeyBytes, 1, relevantKeccakBytes, 0 , relevantKeccakBytes.Length);
 
                     output = CryptoCore.ComputeKeccak256Hash(relevantKeccakBytes);
 
